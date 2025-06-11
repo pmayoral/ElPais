@@ -1,0 +1,1225 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <!-- Metadatos básicos -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Sistema de gestión de vacaciones para empresas - VacationFlow">
+    <meta name="author" content="VacationFlow Team">
+    
+    <!-- Título de la página -->
+    <title>VacationFlow - Gestión de Vacaciones</title>
+    <!-- Estilos CSS del sistema -->
+    <style>
+        /* ====================================================================== */
+        /* RESET Y CONFIGURACIÓN GLOBAL */
+        /* ====================================================================== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* ====================================================================== */
+        /* VARIABLES CSS GLOBALES */
+        /* ====================================================================== */
+        :root {
+            /* Colores principales */
+            --primary-color: #667eea;
+            --primary-dark: #5a6fd8;
+            --secondary-color: #764ba2;
+            --accent-color: #f093fb;
+            
+            /* Colores de estado */
+            --success-color: #4ade80;
+            --warning-color: #fbbf24;
+            --danger-color: #f87171;
+            
+            /* Colores de fondo */
+            --dark-bg: #1e293b;
+            --dark-surface: #334155;
+            --light-bg: #f8fafc;
+            --light-surface: #ffffff;
+            
+            /* Colores de texto */
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            
+            /* Bordes y sombras */
+            --border-color: #e2e8f0;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        /* ====================================================================== */
+        /* ESTILOS GENERALES */
+        /* ====================================================================== */
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, var(--light-bg) 0%, #e0e7ff 100%);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* ====================================================================== */
+        /* BARRA LATERAL (SIDEBAR) */
+        /* ====================================================================== */
+        .sidebar {
+            width: 280px;
+            background: linear-gradient(180deg, var(--dark-bg) 0%, var(--dark-surface) 100%);
+            color: white;
+            padding: 2rem 0;
+            box-shadow: var(--shadow-lg);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .sidebar::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            opacity: 0.1;
+            z-index: 0;
+        }
+
+        .sidebar-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding: 0 2rem;
+        }
+
+        .logo h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: linear-gradient(45deg, var(--accent-color), #667eea);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .logo p {
+            font-size: 0.875rem;
+            opacity: 0.7;
+            margin-top: 0.5rem;
+        }
+
+        .nav-menu {
+            list-style: none;
+            padding: 0;
+        }
+
+        .nav-item {
+            margin-bottom: 0.5rem;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 1rem 2rem;
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border-left-color: var(--accent-color);
+            backdrop-filter: blur(10px);
+        }
+
+        .nav-icon {
+            width: 20px;
+            height: 20px;
+            margin-right: 1rem;
+            opacity: 0.8;
+        }
+
+        /* ====================================================================== */
+        /* CONTENIDO PRINCIPAL */
+        /* ====================================================================== */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ====================================================================== */
+        /* CABECERA (HEADER) */
+        /* ====================================================================== */
+        .header {
+            background: var(--light-surface);
+            padding: 1.5rem 2rem;
+            box-shadow: var(--shadow);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .header-left h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .header-left p {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.5rem 1rem;
+            background: var(--light-bg);
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+
+        .user-profile:hover {
+            background: white;
+            box-shadow: var(--shadow);
+        }
+
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, var(--primary-color), var(--accent-color));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 0.875rem;
+        }
+
+        .user-info h4 {
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+
+        .user-info p {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        /* ====================================================================== */
+        /* ÁREA DE CONTENIDO */
+        /* ====================================================================== */
+        .content {
+            flex: 1;
+            padding: 2rem;
+            overflow-y: auto;
+        }
+
+        /* Dashboard Cards */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .stats-card {
+            background: var(--light-surface);
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stats-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+        }
+
+        .stats-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .stats-header {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .stats-title {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .stats-value {
+            font-size: 2.25rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .stats-change {
+            font-size: 0.875rem;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .stats-change.positive {
+            color: var(--success-color);
+        }
+
+        .stats-change.negative {
+            color: var(--danger-color);
+        }
+
+        /* Calendar */
+        .calendar-section {
+            background: var(--light-surface);
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+            margin-bottom: 2rem;
+        }
+
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .calendar-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .calendar-controls {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, var(--primary-color), var(--primary-dark));
+            color: white;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: var(--light-bg);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            background: white;
+            box-shadow: var(--shadow);
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 1px;
+            background: var(--border-color);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .calendar-day {
+            background: var(--light-surface);
+            padding: 1rem;
+            min-height: 100px;
+            position: relative;
+            transition: background 0.2s ease;
+        }
+
+        .calendar-day:hover {
+            background: var(--light-bg);
+        }
+
+        .calendar-day.other-month {
+            background: var(--light-bg);
+            color: var(--text-secondary);
+        }
+
+        .calendar-day-number {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .vacation-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-bottom: 2px;
+        }
+
+        .vacation-type-vacation {
+            background: var(--primary-color);
+        }
+
+        .vacation-type-sick {
+            background: var(--danger-color);
+        }
+
+        .vacation-type-personal {
+            background: var(--warning-color);
+        }
+
+        .vacation-type-holiday {
+            background: var(--success-color);
+        }
+
+        /* Employee List */
+        .employee-section {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 2rem;
+        }
+
+        .employee-list {
+            background: var(--light-surface);
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+        }
+
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .employee-item {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+            border: 1px solid transparent;
+        }
+
+        .employee-item:hover {
+            background: var(--light-bg);
+            border-color: var(--border-color);
+        }
+
+        .employee-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, var(--primary-color), var(--accent-color));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            margin-right: 1rem;
+        }
+
+        .employee-info {
+            flex: 1;
+        }
+
+        .employee-name {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .employee-role {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        .employee-status {
+            padding: 0.25rem 0.75rem;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .status-available {
+            background: rgba(74, 222, 128, 0.1);
+            color: var(--success-color);
+        }
+
+        .status-vacation {
+            background: rgba(102, 126, 234, 0.1);
+            color: var(--primary-color);
+        }
+
+        .status-sick {
+            background: rgba(248, 113, 113, 0.1);
+            color: var(--danger-color);
+        }
+
+        /* Quick Actions */
+        .quick-actions {
+            background: var(--light-surface);
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+        }
+
+        .action-btn {
+            display: block;
+            width: 100%;
+            margin-bottom: 1rem;
+            text-align: left;
+            background: linear-gradient(45deg, var(--light-bg), white);
+            border: 1px solid var(--border-color);
+        }
+
+        .action-btn:hover {
+            background: linear-gradient(45deg, var(--primary-color), var(--accent-color));
+            color: white;
+            border-color: transparent;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            backdrop-filter: blur(8px);
+        }
+
+        .modal.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: var(--light-surface);
+            border-radius: 16px;
+            padding: 2rem;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: var(--shadow-lg);
+            transform: scale(0.9);
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+
+        .modal.show .modal-content {
+            transform: scale(1);
+            opacity: 1;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .form-input, .form-select {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: var(--light-surface);
+        }
+
+        .form-input:focus, .form-select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                height: auto;
+            }
+
+            .nav-menu {
+                display: flex;
+                overflow-x: auto;
+                padding: 0 1rem;
+            }
+
+            .nav-item {
+                margin-bottom: 0;
+                margin-right: 1rem;
+            }
+
+            .content {
+                padding: 1rem;
+            }
+
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .employee-section {
+                grid-template-columns: 1fr;
+            }
+
+            .calendar-day {
+                padding: 0.5rem;
+                min-height: 60px;
+            }
+        }
+
+        /* Animation classes */
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .loading {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .loading::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.6), transparent);
+            animation: loading 1.5s infinite;
+        }
+
+        @keyframes loading {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+    </style>
+</head>
+<body>
+    <!-- ================================================================== -->
+    <!-- CONTENEDOR PRINCIPAL DE LA APLICACIÓN -->
+    <!-- ================================================================== -->
+    <div class="container">
+        <!-- ============================================================== -->
+        <!-- BARRA LATERAL DE NAVEGACIÓN -->
+        <!-- ============================================================== -->
+        <nav class="sidebar">
+            <div class="sidebar-content">
+                <div class="logo">
+                    <h1>VacationFlow</h1>
+                    <p>Gestión Inteligente</p>
+                </div>
+                
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <a href="#" class="nav-link active" data-section="dashboard">
+                            <svg class="nav-icon" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"/>
+                            </svg>
+                            Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" data-section="calendar">
+                            <svg class="nav-icon" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z"/>
+                            </svg>
+                            Calendario
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" data-section="employees">
+                            <svg class="nav-icon" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"/>
+                            </svg>
+                            Empleados
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" data-section="requests">
+                            <svg class="nav-icon" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"/>
+                            </svg>
+                            Solicitudes
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" data-section="reports">
+                            <svg class="nav-icon" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z"/>
+                            </svg>
+                            Reportes
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" data-section="settings">
+                            <svg class="nav-icon" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z"/>
+                            </svg>
+                            Configuración
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+
+        <!-- ============================================================== -->
+        <!-- CONTENIDO PRINCIPAL -->
+        <!-- ============================================================== -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="header">
+                <div class="header-left">
+                    <h2 id="page-title">Dashboard Principal</h2>
+                    <p id="page-subtitle">Resumen general del sistema</p>
+                </div>
+                <div class="header-right">
+                    <div class="user-profile">
+                        <div class="user-avatar">AD</div>
+                        <div class="user-info">
+                            <h4>Admin Demo</h4>
+                            <p id="user-role">Administrador</p>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Content -->
+            <div class="content">
+                <!-- Dashboard Section -->
+                <div id="dashboard-section" class="section-content">
+                    <div class="dashboard-grid">
+                        <div class="stats-card fade-in">
+                            <div class="stats-header">
+                                <h3 class="stats-title">Empleados Activos</h3>
+                            </div>
+                            <div class="stats-value">247</div>
+                            <div class="stats-change positive">
+                                <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M5.293 9.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 7.414V15a1 1 0 11-2 0V7.414L6.707 9.707a1 1 0 01-1.414 0z"/>
+                                </svg>
+                                +12% este mes
+                            </div>
+                        </div>
+
+                        <div class="stats-card fade-in">
+                            <div class="stats-header">
+                                <h3 class="stats-title">En Vacaciones</h3>
+                            </div>
+                            <div class="stats-value">23</div>
+                            <div class="stats-change negative">
+                                <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M14.707 10.293a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 111.414-1.414L9 12.586V5a1 1 0 012 0v7.586l2.293-2.293a1 1 0 011.414 0z"/>
+                                </svg>
+                                -5% vs semana anterior
+                            </div>
+                        </div>
+
+                        <div class="stats-card fade-in">
+                            <div class="stats-header">
+                                <h3 class="stats-title">Solicitudes Pendientes</h3>
+                            </div>
+                            <div class="stats-value">8</div>
+                            <div class="stats-change positive">
+                                <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"/>
+                                </svg>
+                                Requieren atención
+                            </div>
+                        </div>
+
+                        <div class="stats-card fade-in">
+                            <div class="stats-header">
+                                <h3 class="stats-title">Días Disponibles</h3>
+                            </div>
+                            <div class="stats-value">1,247</div>
+                            <div class="stats-change positive">
+                                <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"/>
+                                </svg>
+                                Total acumulado
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Calendar -->
+                    <div class="calendar-section fade-in">
+                        <div class="calendar-header">
+                            <h3 class="calendar-title">Calendario de Vacaciones - Junio 2025</h3>
+                            <div class="calendar-controls">
+                                <button class="btn btn-secondary" onclick="previousMonth()">
+                                    <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"/>
+                                    </svg>
+                                    Anterior
+                                </button>
+                                <button class="btn btn-secondary" onclick="nextMonth()">
+                                    Siguiente
+                                    <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"/>
+                                    </svg>
+                                </button>
+                                <button class="btn btn-primary" onclick="showNewRequestModal()">
+                                    <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"/>
+                                    </svg>
+                                    Nueva Solicitud
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="calendar-grid" id="calendar-grid">
+                            <!-- Calendar will be generated by JavaScript -->
+                        </div>
+                    </div>
+
+                    <!-- Employee Status -->
+                    <div class="employee-section fade-in">
+                        <div class="employee-list">
+                            <div class="section-title">
+                                <h3>Estado de Empleados</h3>
+                                <button class="btn btn-secondary" onclick="showEmployeeModal()">Gestionar</button>
+                            </div>
+                            
+                            <div class="employee-item">
+                                <div class="employee-avatar">MG</div>
+                                <div class="employee-info">
+                                    <div class="employee-name">María García</div>
+                                    <div class="employee-role">Desarrolladora Senior</div>
+                                </div>
+                                <div class="employee-status status-vacation">En Vacaciones</div>
+                            </div>
+
+                            <div class="employee-item">
+                                <div class="employee-avatar">JL</div>
+                                <div class="employee-info">
+                                    <div class="employee-name">Juan López</div>
+                                    <div class="employee-role">Project Manager</div>
+                                </div>
+                                <div class="employee-status status-available">Disponible</div>
+                            </div>
+
+                            <div class="employee-item">
+                                <div class="employee-avatar">AS</div>
+                                <div class="employee-info">
+                                    <div class="employee-name">Ana Sánchez</div>
+                                    <div class="employee-role">Diseñadora UX</div>
+                                </div>
+                                <div class="employee-status status-sick">Baja Médica</div>
+                            </div>
+
+                            <div class="employee-item">
+                                <div class="employee-avatar">CF</div>
+                                <div class="employee-info">
+                                    <div class="employee-name">Carlos Fernández</div>
+                                    <div class="employee-role">DevOps Engineer</div>
+                                </div>
+                                <div class="employee-status status-available">Disponible</div>
+                            </div>
+
+                            <div class="employee-item">
+                                <div class="employee-avatar">LM</div>
+                                <div class="employee-info">
+                                    <div class="employee-name">Laura Martín</div>
+                                    <div class="employee-role">QA Tester</div>
+                                </div>
+                                <div class="employee-status status-vacation">En Vacaciones</div>
+                            </div>
+                        </div>
+
+                        <div class="quick-actions">
+                            <div class="section-title">
+                                <h3>Acciones Rápidas</h3>
+                            </div>
+                            
+                            <button class="btn action-btn" onclick="showNewRequestModal()">
+                                <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z"/>
+                                </svg>
+                                Solicitar Vacaciones
+                            </button>
+
+                            <button class="btn action-btn" onclick="showRequestsModal()">
+                                <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"/>
+                                </svg>
+                                Ver Solicitudes
+                            </button>
+
+                            <button class="btn action-btn" onclick="exportReport()">
+                                <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z"/>
+                                </svg>
+                                Exportar Reporte
+                            </button>
+
+                            <button class="btn action-btn" onclick="manageTeams()">
+                                <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3z"/>
+                                </svg>
+                                Gestionar Equipos
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Calendar Section -->
+                <div id="calendar-section" class="section-content" style="display: none;">
+                    <div class="calendar-section fade-in">
+                        <div class="calendar-header">
+                            <h3 class="calendar-title">Vista Completa del Calendario</h3>
+                            <div class="calendar-controls">
+                                <select class="form-select" id="month-selector" onchange="changeMonth()">
+                                    <option value="5">Junio 2025</option>
+                                    <option value="4">Mayo 2025</option>
+                                    <option value="6">Julio 2025</option>
+                                </select>
+                                <select class="form-select" id="view-selector" onchange="changeView()">
+                                    <option value="month">Vista Mensual</option>
+                                    <option value="week">Vista Semanal</option>
+                                    <option value="day">Vista Diaria</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="calendar-legend" style="margin-bottom: 1rem; display: flex; gap: 1rem; flex-wrap: wrap;">
+                            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                <div class="vacation-indicator vacation-type-vacation"></div>
+                                <span>Vacaciones</span>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                <div class="vacation-indicator vacation-type-sick"></div>
+                                <span>Baja Médica</span>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                <div class="vacation-indicator vacation-type-personal"></div>
+                                <span>Asuntos Personales</span>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                <div class="vacation-indicator vacation-type-holiday"></div>
+                                <span>Festivos</span>
+                            </div>
+                        </div>
+                        
+                        <div class="calendar-grid" id="full-calendar-grid">
+                            <!-- Full calendar will be generated by JavaScript -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Employees Section -->
+                <div id="employees-section" class="section-content" style="display: none;">
+                    <div class="employee-list fade-in">
+                        <div class="section-title">
+                            <h3>Gestión de Empleados</h3>
+                            <button class="btn btn-primary" onclick="showAddEmployeeModal()">
+                                <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M8 9a3 3 0 100-6 3 3 0 000 6zM8 11a6 6 0 016 6H2a6 6 0 016-6zM16 7a1 1 0 10-2 0v1h-1a1 1 0 100 2h1v1a1 1 0 102 0v-1h1a1 1 0 100-2h-1V7z"/>
+                                </svg>
+                                Añadir Empleado
+                            </button>
+                        </div>
+                        
+                        <div style="margin-bottom: 2rem;">
+                            <input type="text" class="form-input" placeholder="Buscar empleados..." id="employee-search" onkeyup="filterEmployees()">
+                        </div>
+
+                        <div id="employees-list">
+                            <!-- Employees will be populated by JavaScript -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Requests Section -->
+                <div id="requests-section" class="section-content" style="display: none;">
+                    <div class="stats-card fade-in">
+                        <div class="section-title">
+                            <h3>Solicitudes Pendientes</h3>
+                            <div style="display: flex; gap: 1rem;">
+                                <select class="form-select" id="status-filter" onchange="filterRequests()">
+                                    <option value="all">Todas</option>
+                                    <option value="pending">Pendientes</option>
+                                    <option value="approved">Aprobadas</option>
+                                    <option value="rejected">Rechazadas</option>
+                                </select>
+                                <button class="btn btn-primary" onclick="showNewRequestModal()">Nueva Solicitud</button>
+                            </div>
+                        </div>
+                        
+                        <div id="requests-list">
+                            <!-- Requests will be populated by JavaScript -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Reports Section -->
+                <div id="reports-section" class="section-content" style="display: none;">
+                    <div class="dashboard-grid fade-in">
+                        <div class="stats-card">
+                            <h3 class="section-title">Análisis de Vacaciones</h3>
+                            <canvas id="vacation-chart" width="400" height="200"></canvas>
+                        </div>
+                        
+                        <div class="stats-card">
+                            <h3 class="section-title">Estadísticas por Departamento</h3>
+                            <div id="department-stats">
+                                <!-- Department stats will be populated by JavaScript -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Settings Section -->
+                <div id="settings-section" class="section-content" style="display: none;">
+                    <div class="employee-section fade-in">
+                        <div class="stats-card">
+                            <h3 class="section-title">Configuración del Sistema</h3>
+                            
+                            <div class="form-group">
+                                <label class="form-label">Días de vacaciones anuales por defecto</label>
+                                <input type="number" class="form-input" value="22" id="default-vacation-days">
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Aprobación automática para solicitudes menores a:</label>
+                                <select class="form-select" id="auto-approve-days">
+                                    <option value="0">Deshabilitado</option>
+                                    <option value="1">1 día</option>
+                                    <option value="2">2 días</option>
+                                    <option value="3">3 días</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Notificaciones por email</label>
+                                <input type="checkbox" checked> Activar notificaciones automáticas
+                            </div>
+
+                            <button class="btn btn-primary">Guardar Configuración</button>
+                        </div>
+
+                        <div class="stats-card">
+                            <h3 class="section-title">Gestión de Roles</h3>
+                            
+                            <div style="margin-bottom: 1rem;">
+                                <h4>Administradores</h4>
+                                <p style="color: var(--text-secondary); font-size: 0.875rem;">Acceso completo al sistema</p>
+                                <div id="admin-users">
+                                    <!-- Admin users will be listed here -->
+                                </div>
+                            </div>
+
+                            <div style="margin-bottom: 1rem;">
+                                <h4>Managers</h4>
+                                <p style="color: var(--text-secondary); font-size: 0.875rem;">Pueden aprobar solicitudes de su equipo</p>
+                                <div id="manager-users">
+                                    <!-- Manager users will be listed here -->
+                                </div>
+                            </div>
+
+                            <button class="btn btn-secondary">Gestionar Permisos</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- ================================================================== -->
+    <!-- MODALES DE LA APLICACIÓN -->
+    <!-- ================================================================== -->
+    
+    <!-- Modal para Nueva Solicitud de Vacaciones -->
+    <div id="new-request-modal" class="modal">
+        <div class="modal-content">
+            <h3 style="margin-bottom: 1.5rem;">Nueva Solicitud de Vacaciones</h3>
+            
+            <form id="vacation-form">
+                <div class="form-group">
+                    <label class="form-label">Tipo de Ausencia</label>
+                    <select class="form-select" id="absence-type" required>
+                        <option value="">Seleccionar tipo</option>
+                        <option value="vacation">Vacaciones</option>
+                        <option value="sick">Baja Médica</option>
+                        <option value="personal">Asuntos Personales</option>
+                        <option value="maternity">Baja Maternal</option>
+                        <option value="paternity">Baja Paternal</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Empleado</label>
+                    <select class="form-select" id="employee-select" required>
+                        <option value="">Seleccionar empleado</option>
+                        <option value="maria-garcia">María García</option>
+                        <option value="juan-lopez">Juan López</option>
+                        <option value="ana-sanchez">Ana Sánchez</option>
+                        <option value="carlos-fernandez">Carlos Fernández</option>
+                        <option value="laura-martin">Laura Martín</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Fecha de Inicio</label>
+                    <input type="date" class="form-input" id="start-date" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Fecha de Fin</label>
+                    <input type="date" class="form-input" id="end-date" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Motivo/Comentarios</label>
+                    <textarea class="form-input" id="comments" rows="3" placeholder="Opcional: añade comentarios adicionales"></textarea>
+                </div>
+
+                <div style="display: flex; gap: 1rem; justify-content: flex-end; margin-top: 2rem;">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('new-request-modal')">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Enviar Solicitud</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal para Gestión de Empleados -->
+    <div id="employee-modal" class="modal">
+        <div class="modal-content">
+            <h3 style="margin-bottom: 1.5rem;">Gestión de Empleado</h3>
+            
+            <form id="employee-form">
+                <div class="form-group">
+                    <label class="form-label">Nombre Completo</label>
+                    <input type="text" class="form-input" id="employee-name" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Email</label>
+                    <input type="email" class="form-input" id="employee-email" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Departamento</label>
+                    <select class="form-select" id="employee-department" required>
+                        <option value="">Seleccionar departamento</option>
+                        <option value="desarrollo">Desarrollo</option>
+                        <option value="diseño">Diseño</option>
+                        <option value="marketing">Marketing</option>
+                        <option value="rrhh">Recursos Humanos</option>
+                        <option value="ventas">Ventas</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Rol</label>
+                    <select class="form-select" id="employee-role" required>
+                        <option value="employee">Empleado</option>
+                        <option value="manager">Manager</option>
+                        <option value="admin">Administrador</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Días de Vacaciones Anuales</label>
+                    <input type="number" class="form-input" id="employee-vacation-days" value="22" required>
+                </div>
+
+                <div style="display: flex; gap: 1rem; justify-content: flex-end; margin-top: 2rem;">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('employee-modal')">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ================================================================== -->
+    <!-- SCRIPTS JAVASCRIPT -->
+    <!-- ================================================================== -->
+    
+    <!-- JavaScript externo para la funcionalidad del sistema -->
+    <script src="vacation.js"></script>
+</body>
+</html>
+                
