@@ -1,1 +1,1750 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📰 Noticias de El País</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #0076c8 0%, #005089 100%);
+            min-height: 100vh;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 100%;
+            margin: 0;
+            background: white;
+            border-radius: 0;
+            box-shadow: none;
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(135deg, #0076c8 0%, #005089 100%);
+            color: white;
+            padding: 10px 30px;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            margin-bottom: 2px;
+            font-weight: 700;
+        }
+
+        .subtitle {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            font-weight: 300;
+        }
+
+        .stats {
+            background: #f8f9fa;
+            padding: 8px 30px;
+            text-align: center;
+            font-weight: 500;
+            color: #495057;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .news-grid {
+            padding: 30px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+        }
+
+        .news-item {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+            border: 1px solid #e9ecef;
+        }
+
+        .news-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+        }
+
+        .news-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .news-source {
+            background: linear-gradient(135deg, #0076c8 0%, #005089 100%);
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: capitalize;
+        }
+
+        .news-date {
+            color: #6c757d;
+            font-size: 0.85rem;
+            font-weight: 500;
+            white-space: pre-line;
+            text-align: right;
+            line-height: 1.3;
+        }
+
+        .news-headline {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #212529;
+            margin-bottom: 15px;
+            line-height: 1.4;
+        }
+
+        .news-description {
+            color: #495057;
+            line-height: 1.6;
+            margin-bottom: 15px;
+            font-size: 0.9rem;
+        }
+
+        .news-tags {
+            display: none;
+        }
+
+        .news-tag {
+            display: none;
+        }
+
+        .loading-message {
+            text-align: center;
+            padding: 50px;
+            color: #6c757d;
+            font-size: 1.1rem;
+        }
+
+        .error-message {
+            text-align: center;
+            padding: 50px;
+            color: #dc3545;
+        }
+
+        .error-message h3 {
+            margin-bottom: 15px;
+            color: #dc3545;
+        }
+
+        /* Toggle Switch */
+        .view-options {
+            padding: 20px 30px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            justify-content: center;
+        }
+
+        .toggle-switch {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            user-select: none;
+            gap: 12px;
+        }
+
+        .toggle-switch input {
+            display: none;
+        }
+
+        .slider {
+            position: relative;
+            width: 50px;
+            height: 24px;
+            background: #ccc;
+            border-radius: 24px;
+            transition: 0.3s;
+        }
+
+        .slider:before {
+            content: "";
+            position: absolute;
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background: white;
+            border-radius: 50%;
+            transition: 0.3s;
+        }
+
+        .toggle-switch input:checked + .slider {
+            background: linear-gradient(135deg, #0076c8 0%, #005089 100%);
+        }
+
+        .toggle-switch input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+
+        .label-text {
+            font-weight: 500;
+            color: #495057;
+            font-size: 0.9rem;
+        }
+
+        /* Índice de secciones - REESTRUCTURADO */
+        .sections-index {
+            padding: 15px 30px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .main-controls-title {
+            margin: 0 0 12px 0;
+            color: #495057;
+            font-size: 1.1rem;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .main-controls-container {
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .filter-group label {
+            font-weight: 500;
+            font-size: 0.9rem;
+            color: #333;
+            margin-left: 5px;
+        }
+        
+        .sections-count-badge {
+            background: #0076c8;
+            color: white;
+            border-radius: 10px;
+            padding: 2px 8px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            vertical-align: middle;
+            margin-left: 5px;
+        }
+
+        .hemeroteca-date-picker {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .hemeroteca-date-picker input[type="date"] {
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            padding: 8px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: #495057;
+            transition: all 0.3s ease;
+            width: 150px;
+        }
+        
+        .hemeroteca-date-picker input[type="date"]:hover {
+            border-color: #0076c8;
+        }
+
+        .hemeroteca-date-picker button {
+            background: linear-gradient(135deg, #28a745 0%, #218838 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 10px 15px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .hemeroteca-date-picker button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(40, 167, 69, 0.2);
+        }
+
+        .actions-container {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .actions-container button {
+            background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 12px 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .actions-container button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        /* Ocultar estilos antiguos */
+        .sections-header, .filters-container, .sections-title, .hemeroteca-controls, .view-options {
+            display: none;
+        }
+
+        /* Dropdown desplegable */
+        .sections-dropdown {
+            position: relative;
+            width: 280px;
+        }
+
+        .dropdown-toggle {
+            width: 100%;
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            padding: 10px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: #495057;
+        }
+
+        .dropdown-toggle:hover {
+            border-color: #0076c8;
+            box-shadow: 0 2px 8px rgba(0, 118, 200, 0.15);
+        }
+
+        .dropdown-arrow {
+            transition: transform 0.3s ease;
+            font-size: 0.8rem;
+            color: #6c757d;
+        }
+
+        .dropdown-toggle.active .dropdown-arrow {
+            transform: rotate(180deg);
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 2px solid #e9ecef;
+            border-top: none;
+            border-radius: 0 0 12px 12px;
+            max-height: 300px;
+            overflow-y: auto;
+            z-index: 1000;
+            display: none;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .dropdown-menu.show {
+            display: block;
+        }
+
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border-bottom: 1px solid #f8f9fa;
+        }
+
+        .dropdown-item:last-child {
+            border-bottom: none;
+        }
+
+        .dropdown-item:hover {
+            background: #f8f9fa;
+        }
+
+        .dropdown-item.active {
+            background: linear-gradient(135deg, #0076c8 0%, #005089 100%);
+            color: white;
+        }
+
+        .section-icon {
+            font-size: 1.1rem;
+            width: 20px;
+            text-align: center;
+        }
+
+        .section-name {
+            flex: 1;
+            font-weight: 500;
+            text-transform: capitalize;
+        }
+
+        .section-count {
+            background: rgba(255, 255, 255, 0.2);
+            color: inherit;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+
+        .dropdown-item.active .section-count {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Buscador */
+        .search-section {
+            width: 280px;
+        }
+
+        .search-container {
+            position: relative;
+            display: flex;
+            align-items: center;
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            padding: 8px 12px;
+            transition: all 0.3s ease;
+        }
+
+        .search-container:focus-within {
+            border-color: #0076c8;
+            box-shadow: 0 2px 8px rgba(0, 118, 200, 0.15);
+        }
+
+        .search-icon {
+            font-size: 1rem;
+            color: #6c757d;
+            margin-right: 8px;
+        }
+
+        .search-input {
+            flex: 1;
+            border: none;
+            outline: none;
+            font-size: 0.9rem;
+            color: #495057;
+            background: transparent;
+        }
+
+        .search-input::placeholder {
+            color: #adb5bd;
+        }
+
+        .search-clear {
+            background: none;
+            border: none;
+            color: #adb5bd;
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 50%;
+            font-size: 0.8rem;
+            transition: all 0.2s ease;
+            display: none;
+        }
+
+        .search-clear:hover {
+            background: #f8f9fa;
+            color: #6c757d;
+        }
+
+        .search-clear.show {
+            display: block;
+        }
+
+        .search-stats {
+            font-size: 0.8rem;
+            color: #6c757d;
+            min-height: 16px;
+        }
+
+        /* Controles de la Hemeroteca */
+        .hemeroteca-controls {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #dee2e6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .hemeroteca-controls label {
+            font-weight: 600;
+            color: #495057;
+            font-size: 1rem;
+        }
+
+        .hemeroteca-controls input[type="date"] {
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            padding: 10px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: #495057;
+            transition: all 0.3s ease;
+        }
+
+        .hemeroteca-controls input[type="date"]:hover {
+            border-color: #0076c8;
+        }
+        
+        .hemeroteca-controls button {
+            background: linear-gradient(135deg, #0076c8 0%, #005089 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 12px 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .hemeroteca-controls button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 118, 200, 0.2);
+        }
+
+        .hemeroteca-controls button#backToLatestBtn {
+            background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+        }
+
+        /* Resaltado de texto */
+        .highlight {
+            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+            padding: 2px 4px;
+            border-radius: 4px;
+            font-weight: 600;
+            box-shadow: 0 1px 3px rgba(255, 215, 0, 0.3);
+        }
+
+        /* Noticias filtradas */
+        .news-item.filtered-out {
+            display: none;
+        }
+
+        .news-item.search-match {
+            border-left: 4px solid #ffd700;
+            background: linear-gradient(135deg, #fff9e6 0%, #fff 100%);
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 2% auto;
+            padding: 0;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 90vh;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            animation: modalSlideIn 0.3s ease-out;
+            display: flex;
+            flex-direction: column;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, #0076c8 0%, #005089 100%);
+            color: white;
+            padding: 20px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-author-info {
+            background: #f8f9fa;
+            padding: 15px 30px;
+            border-bottom: 1px solid #e9ecef;
+            font-size: 0.9rem;
+            color: #495057;
+            font-weight: 500;
+            line-height: 1.4;
+        }
+
+        .modal-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+        }
+
+        .modal-date {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            white-space: pre-line;
+            line-height: 1.3;
+        }
+
+        .close {
+            color: white;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            line-height: 1;
+        }
+
+        .close:hover {
+            opacity: 0.7;
+        }
+
+        .modal-body {
+            padding: 30px;
+            max-height: 60vh;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .modal-content-text {
+            line-height: 1.8;
+            color: #333;
+            font-size: 1rem;
+        }
+
+        .modal-content-text p {
+            margin-bottom: 1em;
+        }
+
+        .article-subtitle {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #e9ecef;
+            line-height: 1.5;
+        }
+
+        .modal-footer {
+            background: #f8f9fa;
+            padding: 20px 30px;
+            border-top: 1px solid #e9ecef;
+            flex-shrink: 0;
+        }
+
+        .modal-source {
+            text-align: center;
+        }
+
+        .modal-source a {
+            color: #0076c8;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .modal-source a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .news-grid {
+                grid-template-columns: 1fr;
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📰 El País</h1>
+            <p class="subtitle">Noticias de última hora de España y el mundo</p>
+        </header>
+        
+        <div class="stats" id="stats">Cargando noticias de El País...</div>
+        
+        <div class="sections-index" id="sectionsIndex">
+            
+            <h3 class="main-controls-title" id="mainControlsTitle">Últimas Noticias</h3>
+
+            <div class="main-controls-container">
+                <div class="filter-group">
+                    <label for="dropdownToggle">Sección <span id="sectionsCount" class="sections-count-badge">0</span></label>
+                    <div class="sections-dropdown">
+                        <button class="dropdown-toggle" id="dropdownToggle">
+                            <span class="dropdown-text">Todas las secciones</span>
+                            <span class="dropdown-arrow">▼</span>
+                        </button>
+                        <div class="dropdown-menu" id="dropdownMenu">
+                            <div class="dropdown-item active" data-section="all">
+                                <span class="section-icon">📰</span>
+                                <span class="section-name">Todas las noticias</span>
+                                <span class="section-count">0</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="filter-group">
+                    <label for="searchInput">Búsqueda</label>
+                    <div class="search-section">
+                        <div class="search-container">
+                            <span class="search-icon">🔍</span>
+                            <input type="text" id="searchInput" class="search-input" placeholder="Buscar en noticias..." />
+                            <button class="search-clear" id="searchClear" title="Limpiar búsqueda">✕</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="filter-group">
+                    <label for="hemerotecaDate">Hemeroteca</label>
+                    <div class="hemeroteca-date-picker">
+                        <input type="date" id="hemerotecaDate">
+                        <button id="fetchHemerotecaBtn">Buscar</button>
+                    </div>
+                </div>
+
+                <div class="filter-group">
+                     <label>Leer en ventana emergente</label>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="readModeToggle">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="search-stats" id="searchStats"></div>
+
+            <div class="actions-container">
+                <button id="backToLatestBtn" style="display:none;">← Volver a Últimas Noticias</button>
+            </div>
+        </div>
+        
+        <div class="news-grid" id="newsGrid">
+            <p class="loading-message">Cargando noticias...</p>
+        </div>
+    </div>
+
+    <!-- Modal para leer noticia completa -->
+    <div id="newsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div>
+                    <div class="modal-title" id="modalTitle"></div>
+                </div>
+                <span class="close" id="closeModal">&times;</span>
+            </div>
+            <div class="modal-author-info" id="modalAuthorInfo"></div>
+            <div class="modal-body">
+                <div class="modal-content-text" id="modalContent"></div>
+            </div>
+            <div class="modal-footer">
+                <div class="modal-source">
+                    <a href="#" id="modalSourceLink" target="_blank">Ver noticia original en El País</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Configuración específica para El País
+        const FUENTE = {
+            nombre: 'El País',
+            urls: [
+                'https://elpais.com/ultimas-noticias/',
+                'https://elpais.com/economia/'
+            ]
+        };
+
+        const PROXY_STRATEGIES = [
+            { name: 'corsproxy', url: (targetUrl) => `https://corsproxy.io/?${encodeURIComponent(targetUrl)}` },
+            { name: 'allorigins', url: (targetUrl) => `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}` },
+            { name: 'thingproxy', url: (targetUrl) => `https://thingproxy.freeboard.io/fetch/${targetUrl}` },
+            { name: 'codetabs', url: (targetUrl) => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(targetUrl)}` }
+        ];
+
+        const CONTENT_SELECTORS = [
+            'div[data-dtm-region="articulo_cuerpo"] p', // Específico El País
+            'article p', '.article-body p', '.news-content p', '.story-content p',
+            '.entry-content p', '.post-content p', '.article-content p', '.content p'
+        ];
+
+        const TEXT_FILTERS = {
+            image: ['foto:', 'imagen:', 'fotografía:', 'archivo', 'reuters', 'efe', 'getty', '©', 'copyright'],
+            boilerplate: ['publicidad', 'cookies', 'privacidad', 'síguenos', 'suscríbete', 'newsletter'],
+            social: ['pic.twitter.com', 't.co']
+        };
+
+        // Utilidades
+        const formatTimeAgo = (date) => {
+            const seconds = Math.floor((new Date() - date) / 1000);
+            const intervals = [
+                { unit: 'años', value: 31536000 },
+                { unit: 'meses', value: 2592000 },
+                { unit: 'd.', value: 86400 },
+                { unit: 'h.', value: 3600 },
+                { unit: 'min.', value: 60 }
+            ];
+            
+            for (const interval of intervals) {
+                const count = Math.floor(seconds / interval.value);
+                if (count >= 1) return `Hace ${count} ${interval.unit}`;
+            }
+            return "Hace unos segundos";
+        };
+
+        const extractDateFromElement = (element, sourceName) => {
+            const selectors = ['time[datetime]', '.date', '.fecha', '.timestamp', '.meta-date'];
+            
+            for (const selector of selectors) {
+                const dateEl = element.querySelector(selector);
+                if (dateEl) {
+                    const datetime = dateEl.getAttribute('datetime');
+                    if (datetime) {
+                        const date = new Date(datetime);
+                        if (!isNaN(date.getTime())) return date;
+                    }
+                    
+                    const textDate = new Date(dateEl.innerText.trim());
+                    if (!isNaN(textDate.getTime())) return textDate;
+                }
+            }
+            
+            // Fecha aleatoria reciente si no se encuentra
+            const now = new Date();
+            now.setHours(now.getHours() - Math.floor(Math.random() * 24) - 1);
+            return now;
+        };
+
+        const extractAuthorFromElement = (element) => {
+            // Lista de selectores para encontrar el autor, del más específico y actual al más genérico.
+            // El País ha cambiado su estructura varias veces. Esta lista intenta cubrirlas.
+            const authorSelectors = [
+                '.c_a_a',       // Selector MÁS ACTUAL en la vista de lista. Contiene el nombre del autor.
+                '.c_a_au',      // Posible variación o selector antiguo.
+                '.a_a_au',      // Selector antiguo en la página de artículo.
+                '.author a',    // Selectores genéricos como respaldo.
+                '.byline a',
+                '.author',
+                '.byline',
+                '.autor'
+            ];
+            
+            for (const selector of authorSelectors) {
+                const authorEl = element.querySelector(selector);
+                if (authorEl) {
+                    const authorText = authorEl.innerText.trim();
+                    // Filtramos cadenas cortas o que no parezcan nombres.
+                    if (authorText.length > 3 && authorText.length < 50) {
+                        return authorText;
+                    }
+                }
+            }
+            
+            return null; // Si tras probar todos los selectores no se encuentra, devolver null.
+        };
+
+        const extractAuthorInfoFromArticle = async (url) => {
+            try {
+                const html = await fetchWithProxy(url);
+                const doc = new DOMParser().parseFromString(html, 'text/html');
+                
+                // Buscar información completa del artículo (autor, lugar, fecha)
+                const articleInfoSelectors = [
+                    '.a_a', // Específico El País
+                    '.article-meta', '.article-info', '.article-header .meta',
+                    '.news-meta', '.news-info', '.story-meta', '.story-info'
+                ];
+                
+                for (const selector of articleInfoSelectors) {
+                    const infoEl = doc.querySelector(selector);
+                    if (infoEl) {
+                        const text = infoEl.innerText.trim().replace(/\s+/g, ' ');
+                        if (text.length > 10 && text.length < 300) {
+                            return text;
+                        }
+                    }
+                }
+                
+                return null;
+            } catch (error) {
+                console.error('Error extracting author info:', error);
+                return null;
+            }
+        };
+
+        const formatDateWithAuthor = (date, author = null) => {
+            const months = ['ENE', 'FEB', 'MAR', 'ABR', 'MAY', 'JUN', 'JUL', 'AGO', 'SEP', 'OCT', 'NOV', 'DIC'];
+            const day = date.getDate().toString().padStart(2, '0');
+            const month = months[date.getMonth()];
+            const year = date.getFullYear();
+            const hours = date.getHours().toString().padStart(2, '0');
+            const minutes = date.getMinutes().toString().padStart(2, '0');
+            
+            const dateString = `${day} ${month} ${year} - ${hours}:${minutes} CEST`;
+            
+            return author ? `${author}\n${dateString}` : dateString;
+        };
+
+        // Extraer sección de la URL
+        const extractSectionFromUrl = (url) => {
+            try {
+                const urlObj = new URL(url);
+                const path = urlObj.pathname;
+                
+                if (path === '/' || path === '') return 'portada';
+                
+                const pathParts = path.split('/').filter(part => part.length > 0 && !part.endsWith('.html') && !/^\d+$/.test(part));
+                return pathParts.length > 0 ? pathParts[0] : 'portada';
+            } catch (error) {
+                console.error('Error extrayendo sección de URL:', url, error);
+                return 'portada';
+            }
+        };
+
+        // Formatear nombre de sección para mostrar
+        const formatSectionName = (section) => {
+            const sectionMap = {
+                'internacional': 'Internacional', 'opinion': 'Opinión', 'espana': 'España',
+                'economia': 'Economía', 'sociedad': 'Sociedad', 'cultura': 'Cultura',
+                'ciencia': 'Ciencia', 'tecnologia': 'Tecnología', 'deportes': 'Deportes',
+                'television': 'Televisión', 'gente': 'Gente', 'ideas': 'Ideas',
+                'clima-y-medio-ambiente': 'Clima y Medio Ambiente', 'elviajero': 'El Viajero',
+                'portada': 'Portada'
+            };
+            return sectionMap[section] || section.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+        };
+
+        // Obtener icono para cada sección
+        const getSectionIcon = (section) => {
+            const iconMap = {
+                'internacional': '🌍', 'opinion': '💭', 'espana': '🇪🇸',
+                'economia': '📊', 'sociedad': '👥', 'cultura': '🎨',
+                'ciencia': '🔬', 'tecnologia': '💻', 'deportes': '⚽',
+                'television': '📺', 'gente': '🧑‍🤝‍🧑', 'ideas': '💡',
+                'clima-y-medio-ambiente': '🌱', 'elviajero': '✈️',
+                'portada': '📰'
+            };
+            return iconMap[section] || '📄';
+        };
+
+        const formatContentToLines = (content, maxLines = 4) => {
+            let sentences = content.split('.').filter(s => s.trim().length > 10);
+
+            // If no sentences are found (e.g. no periods), treat the whole content as a single source.
+            if (sentences.length === 0 && content.length > 10) {
+                sentences = [content];
+            }
+
+            const selectedSentences = sentences.slice(0, maxLines * 2); // Get more sentences to work with
+            
+            if (selectedSentences.length === 0) return content;
+            
+            const text = selectedSentences.join('. ') + '.';
+            const words = text.split(' ');
+            const lines = [];
+            let currentLine = '';
+            
+            for (const word of words) {
+                if ((currentLine + ' ' + word).length > 70 && currentLine.length > 0) {
+                    lines.push(currentLine.trim());
+                    currentLine = word;
+                } else {
+                    currentLine += (currentLine ? ' ' : '') + word;
+                }
+            }
+            
+            if (currentLine) lines.push(currentLine.trim());
+            
+            // This loop ensures we get close to the desired number of lines
+            while (lines.length < maxLines && lines.length > 0 && lines.length < 10) { // Safety break at 10 lines
+                const longestLineIndex = lines.reduce((longestIndex, line, currentIndex, arr) => {
+                    return line.length > arr[longestIndex].length ? currentIndex : longestIndex;
+                }, 0);
+                
+                const lineToSplit = lines[longestLineIndex];
+                const wordsInLine = lineToSplit.split(' ');
+                if (wordsInLine.length < 2) break; // Can't split a line with one word
+                
+                const mid = Math.ceil(wordsInLine.length / 2);
+                const firstHalf = wordsInLine.slice(0, mid).join(' ');
+                const secondHalf = wordsInLine.slice(mid).join(' ');
+                
+                lines.splice(longestLineIndex, 1, firstHalf, secondHalf);
+            }
+            
+            return lines.slice(0, maxLines).join('\n');
+        };
+
+        const fetchWithProxy = async (url) => {
+            for (const strategy of PROXY_STRATEGIES) {
+                console.log(`Intentando proxy '${strategy.name}' para: ${url}`);
+                try {
+                    // Añadimos un tiempo de espera de 8 segundos por petición
+                    const response = await fetch(strategy.url(url), { signal: AbortSignal.timeout(8000) });
+                    if (response.ok) {
+                        console.log(`Éxito con proxy '${strategy.name}'`);
+                        return await response.text();
+                    } else {
+                         console.warn(`Proxy '${strategy.name}' falló con estado: ${response.status}`);
+                    }
+                } catch (error) {
+                     console.error(`Proxy '${strategy.name}' falló con error:`, error.name, error.message);
+                }
+            }
+            throw new Error('Todos los proxies fallaron');
+        };
+
+        const isValidText = (text, title) => {
+            if (text.length < 25 || text.length > 1000) return false;
+            
+            const lowerText = text.toLowerCase();
+            const hasImageText = TEXT_FILTERS.image.some(word => lowerText.includes(word));
+            const hasBoilerplate = TEXT_FILTERS.boilerplate.some(word => lowerText.includes(word));
+            const hasSocial = TEXT_FILTERS.social.some(word => lowerText.includes(word));
+            const hasTitle = lowerText.includes(title.toLowerCase().substring(0, 20));
+            
+            return !hasImageText && !hasBoilerplate && !hasTitle && !hasSocial;
+        };
+
+        const scrapeArticleContent = async (url, title) => {
+            try {
+                const html = await fetchWithProxy(url);
+                const doc = new DOMParser().parseFromString(html, 'text/html');
+                
+                let content = '';
+
+                // Step 1: Find main article container
+                const contentContainerSelectors = [
+                    'div[data-dtm-region="articulo_cuerpo"]',
+                    '.a_c',
+                    '.article__body',
+                    '.article-body',
+                    'article'
+                ];
+                let articleBody = null;
+                for (const selector of contentContainerSelectors) {
+                    articleBody = doc.querySelector(selector);
+                    if (articleBody) break;
+                }
+                
+                const searchContext = articleBody || doc.body;
+
+                // Step 2: Strict pass
+                searchContext.querySelectorAll('p').forEach(p => {
+                    const text = p.innerText.trim();
+                    if (isValidText(text, title) && !content.includes(text)) {
+                        content += text + ' ';
+                    }
+                });
+
+                // Step 3: Less strict pass if needed
+                if (content.length < 300) {
+                    searchContext.querySelectorAll('p').forEach(p => {
+                        if (content.length > 500) return;
+                        const text = p.innerText.trim();
+                        const lowerText = text.toLowerCase();
+                        
+                        const hasImageText = TEXT_FILTERS.image.some(word => lowerText.includes(word));
+                        const hasBoilerplate = TEXT_FILTERS.boilerplate.some(word => lowerText.includes(word));
+                        const hasSocial = TEXT_FILTERS.social.some(word => lowerText.includes(word));
+
+                        if (text.length > 20 && !hasImageText && !hasBoilerplate && !hasSocial && !content.toLowerCase().includes(lowerText)) {
+                            content += text + ' ';
+                        }
+                    });
+                }
+
+                // Step 4: Check for subtitle if content is still empty
+                if (content.length < 50) {
+                     const subtitleSelectors = [
+                        '.a_st', '.a_e', '.a_hl', // El País específico
+                        '.article-subtitle', '.article-lead', '.article-summary'
+                     ];
+                     for (const selector of subtitleSelectors) {
+                        const subtitleEl = doc.querySelector(selector);
+                        if (subtitleEl) {
+                            const text = subtitleEl.innerText.trim();
+                            if (text.length > 20) {
+                                content = text;
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                if (content.trim().length > 20) {
+                    return formatContentToLines(content, 4);
+                }
+
+                return title;
+            } catch (error) {
+                console.error(`Error scraping summary for ${url}:`, error);
+                return title;
+            }
+        };
+
+        const scrapeFullArticleContent = async (url, title) => {
+            try {
+                const html = await fetchWithProxy(url);
+                const doc = new DOMParser().parseFromString(html, 'text/html');
+                
+                // Primero buscar el subtítulo/entradilla que aparece debajo del título
+                let subtitle = '';
+                const subtitleSelectors = [
+                    '.a_st', '.a_e', '.a_hl', // El País específico
+                    '.article-subtitle', '.article-lead', '.article-summary',
+                    '.news-subtitle', '.news-lead', '.news-summary',
+                    '.story-subtitle', '.story-lead', '.story-summary',
+                    '.entry-subtitle', '.entry-lead', '.entry-summary',
+                    '.article .lead', '.article .summary', '.article .subtitle',
+                    '.news .lead', '.news .summary', '.news .subtitle',
+                    '.story .lead', '.story .summary', '.story .subtitle'
+                ];
+                
+                for (const selector of subtitleSelectors) {
+                    const subtitleEl = doc.querySelector(selector);
+                    if (subtitleEl) {
+                        const text = subtitleEl.innerText.trim();
+                        if (text.length > 20 && text.length < 500) {
+                            subtitle = text;
+                            break;
+                        }
+                    }
+                }
+                
+                // Si no encuentra subtítulo específico, buscar en elementos que contengan texto destacado
+                if (!subtitle) {
+                    const leadSelectors = [
+                        'p.lead', 'p.summary', 'p.subtitle',
+                        '.lead p', '.summary p', '.subtitle p',
+                        'h2', 'h3', '.article h2', '.article h3'
+                    ];
+                    
+                    for (const selector of leadSelectors) {
+                        const leadEl = doc.querySelector(selector);
+                        if (leadEl) {
+                            const text = leadEl.innerText.trim();
+                            if (text.length > 20 && text.length < 300 && text !== title) {
+                                subtitle = text;
+                                break;
+                            }
+                        }
+                    }
+                }
+                
+                // Buscar el contenido principal del artículo
+                let fullContent = '';
+                const contentContainerSelectors = [
+                    'div[data-dtm-region="articulo_cuerpo"]', // El País (más actual)
+                    '.a_c', // El País (antiguo)
+                    '.article__body', // Genérico
+                    '.article-body',
+                    '.article-content',
+                    '.entry-content',
+                    '.post-content',
+                    '.story-content',
+                    'article' // Último recurso
+                ];
+
+                let articleBody = null;
+                for (const selector of contentContainerSelectors) {
+                    articleBody = doc.querySelector(selector);
+                    if (articleBody) break;
+                }
+
+                if (articleBody) {
+                    const elements = articleBody.querySelectorAll('p, h2, h3, h4');
+                    elements.forEach(el => {
+                        // Excluir elementos de zonas no deseadas (anuncios, comentarios, etc.)
+                        if (el.closest('aside, figure, .c_om, .c_m, .pb, .ad, [class*="ad-"], [class*="publicidad"], .articulo-tags, #articulo-tags')) {
+                            return;
+                        }
+
+                        const text = el.innerText.trim();
+                        const lowerText = text.toLowerCase();
+                        const hasBoilerplate = TEXT_FILTERS.boilerplate.some(word => lowerText.includes(word));
+                        const hasSocial = TEXT_FILTERS.social.some(word => lowerText.includes(word));
+                        
+                        if (text.length > 15 && !hasBoilerplate && !hasSocial) {
+                           if (el.tagName.startsWith('H')) {
+                                fullContent += `<${el.tagName}>${text}</${el.tagName}>\n\n`;
+                           } else {
+                                fullContent += text + '\n\n';
+                           }
+                        }
+                    });
+                }
+                
+                // Combinar subtítulo y contenido
+                let finalContent = '';
+                if (subtitle) {
+                    finalContent = `<div class="article-subtitle">${subtitle}</div>\n\n` + fullContent;
+                } else {
+                    finalContent = fullContent;
+                }
+                
+                return {
+                    content: finalContent.trim() || title,
+                    author: null
+                };
+            } catch (error) {
+                console.error('Error scraping full content:', error);
+                return {
+                    content: title,
+                    author: null
+                };
+            }
+        };
+
+        // Estrategia específica para El País
+        const scrapeElPais = async () => {
+            try {
+                const allArticles = new Map();
+                const baseUrl = 'https://elpais.com';
+        
+                for (const url of FUENTE.urls) {
+                    const html = await fetchWithProxy(url);
+                    const doc = new DOMParser().parseFromString(html, 'text/html');
+                    
+                    const articles = doc.querySelectorAll('article');
+                    
+                    articles.forEach(article => {
+                        const titleEl = article.querySelector('h2 a');
+                        const timeEl = article.querySelector('time');
+        
+                        if (titleEl && timeEl) {
+                            let link = titleEl.getAttribute('href');
+                            if (!link.startsWith('http')) {
+                                link = new URL(link, baseUrl).href;
+                            }
+                            
+                            if (allArticles.has(link)) return;
+        
+                            const title = titleEl.innerText.trim();
+                            const author = extractAuthorFromElement(article);
+                            const section = extractSectionFromUrl(link);
+                            allSections.add(section);
+                            
+                            const newsData = {
+                                enlace: link,
+                                titular: title,
+                                entradilla: '', // Placeholder, to be scraped later
+                                fecha: extractDateFromElement(article, FUENTE.nombre),
+                                autor: author,
+                                seccion: section,
+                                fuente: FUENTE.nombre
+                            };
+                            allArticles.set(link, newsData);
+                        }
+                    });
+                }
+                
+                const articleArray = Array.from(allArticles.values());
+                const promises = articleArray.map(news => 
+                    scrapeArticleContent(news.enlace, news.titular).then(summary => ({
+                        ...news,
+                        entradilla: summary,
+                    }))
+                );
+        
+                return Promise.all(promises);
+            } catch (error) {
+                console.error('Error scraping El País:', error);
+                throw error;
+            }
+        };
+        
+        const parseHemerotecaMeta = (metaText) => {
+            const parts = metaText.split('|').map(p => p.trim());
+            // Formato esperado: AUTOR | LUGAR | FECHA
+            if (parts.length < 2) return { author: null, date: null };
+
+            const dateRegex = /(\d{1,2}\s\w{3}\s\d{4}\s-\s\d{2}:\d{2})\sCEST/;
+            let author = null;
+            let date = null;
+
+            const dateMatch = metaText.match(dateRegex);
+            if(dateMatch) {
+                // Mapeo de meses en español
+                const monthMap = { 'ene': 0, 'feb': 1, 'mar': 2, 'abr': 3, 'may': 4, 'jun': 5, 'jul': 6, 'ago': 7, 'sep': 8, 'oct': 9, 'nov': 10, 'dic': 11 };
+                const dateParts = dateMatch[1].replace(' - ', ' ').replace(':', ' ').split(' ');
+                const day = parseInt(dateParts[0], 10);
+                const month = monthMap[dateParts[1].toLowerCase()];
+                const year = parseInt(dateParts[2], 10);
+                const hours = parseInt(dateParts[3], 10);
+                const minutes = parseInt(dateParts[4], 10);
+                date = new Date(year, month, day, hours, minutes);
+            }
+            
+            author = parts[0];
+            if (author.length < 3 || author.length > 50) author = null;
+
+            return { author, date };
+        };
+
+        const scrapeHemerotecaPage = async (url, searchDate) => {
+             try {
+                const allArticles = new Map();
+                const html = await fetchWithProxy(url);
+                const doc = new DOMParser().parseFromString(html, 'text/html');
+                const baseUrl = 'https://elpais.com';
+
+                const articles = doc.querySelectorAll('article');
+                if (articles.length === 0) return []; // Página sin artículos, fin de la paginación
+
+                articles.forEach(article => {
+                    const titleEl = article.querySelector('h2 a');
+                    const metaEl = article.querySelector('.c_a'); // Contenedor de autor y fecha
+
+                    if (titleEl) {
+                        let link = titleEl.getAttribute('href');
+                        if (!link.startsWith('http')) {
+                            link = new URL(link, baseUrl).href;
+                        }
+                        
+                        if (allArticles.has(link)) return;
+
+                        const title = titleEl.innerText.trim();
+                        let author = null;
+                        let date = null;
+
+                        if (metaEl) {
+                           const meta = parseHemerotecaMeta(metaEl.innerText);
+                           author = meta.author;
+                           date = meta.date;
+                        }
+                        // Fallback de fecha si no se puede parsear
+                        if (!date) {
+                            date = new Date(searchDate);
+                            date.setHours(12, 0, 0, 0); // Poner al mediodía para evitar problemas de zona horaria
+                        }
+                        
+                        const section = extractSectionFromUrl(link);
+                        allSections.add(section);
+                        
+                        const newsData = {
+                            enlace: link,
+                            titular: title,
+                            entradilla: '', // Placeholder
+                            fecha: date,
+                            autor: author,
+                            seccion: section,
+                            fuente: FUENTE.nombre
+                        };
+                        allArticles.set(link, newsData);
+                    }
+                });
+                
+                const articleArray = Array.from(allArticles.values());
+                const promises = articleArray.map(news => 
+                    scrapeArticleContent(news.enlace, news.titular).then(summary => ({
+                        ...news,
+                        entradilla: summary,
+                    }))
+                );
+        
+                return Promise.all(promises);
+            } catch (error) {
+                console.error(`Error scraping hemeroteca page ${url}:`, error);
+                return []; // Devuelve array vacío en caso de error para no cortar el bucle
+            }
+        };
+
+        const loadHemerotecaNews = async (dateString) => {
+            const grid = document.getElementById('newsGrid');
+            const stats = document.getElementById('stats');
+            const hemerotecaBtn = document.getElementById('fetchHemerotecaBtn');
+            const backBtn = document.getElementById('backToLatestBtn');
+            const mainTitle = document.getElementById('mainControlsTitle');
+
+            grid.innerHTML = `<p class="loading-message">Buscando noticias en la hemeroteca para el ${dateString}...</p>`;
+            stats.textContent = `Consultando archivo de ${FUENTE.nombre}...`;
+            hemerotecaBtn.disabled = true;
+
+            allSections.clear();
+            let allHemerotecaArticles = [];
+            let page = 1;
+
+            while (true) {
+                stats.textContent = `Consultando archivo... (Página ${page})`;
+                const url = `https://elpais.com/hemeroteca/${dateString}/${page}/`;
+                const articlesFromPage = await scrapeHemerotecaPage(url, dateString);
+
+                if (articlesFromPage.length === 0) {
+                    break; // No más páginas
+                }
+
+                allHemerotecaArticles.push(...articlesFromPage);
+                page++;
+            }
+
+            currentNewsData = allHemerotecaArticles;
+            displayNews(currentNewsData);
+            updateSectionsIndex();
+
+            hemerotecaBtn.disabled = false;
+            fetchHemerotecaBtn.style.display = 'none'; // Ocultar el botón de buscar normal
+            backBtn.style.display = 'inline-block';
+            mainTitle.textContent = `Hemeroteca: ${dateString}`;
+        };
+
+        // Variables globales
+        let currentNewsData = [];
+        let isReadMode = false;
+        let currentSection = 'all';
+        let allSections = new Set();
+        let currentSearchTerm = '';
+        let searchTimeout = null;
+
+        // Funciones del modal
+        const showModal = async (news) => {
+            const modal = document.getElementById('newsModal');
+            const modalTitle = document.getElementById('modalTitle');
+            const modalAuthorInfo = document.getElementById('modalAuthorInfo');
+            const modalContent = document.getElementById('modalContent');
+            const modalSourceLink = document.getElementById('modalSourceLink');
+
+            // Mostrar loading en el modal
+            modalTitle.textContent = news.titular;
+            modalAuthorInfo.textContent = 'Cargando información del autor...';
+            modalContent.innerHTML = '<p>Cargando contenido completo...</p>';
+            modalSourceLink.href = news.enlace;
+            modal.style.display = 'block';
+
+            try {
+                // Obtener información completa del autor con lugar y fecha
+                let authorInfo = await extractAuthorInfoFromArticle(news.enlace);
+                
+                if (authorInfo) {
+                    modalAuthorInfo.textContent = authorInfo;
+                } else {
+                    // Fallback: usar información básica si no se encuentra la información completa
+                    const author = news.autor || 'Autor no disponible';
+                    modalAuthorInfo.textContent = `${author}\n${formatDateWithAuthor(news.fecha)}`;
+                }
+
+                // Obtener contenido completo
+                const fullContentData = await scrapeFullArticleContent(news.enlace, news.titular);
+                
+                let formattedContent = fullContentData.content;
+                let subtitleHtml = '';
+                
+                // Extraer subtítulo si viene como un div separado.
+                if (formattedContent.startsWith('<div class="article-subtitle">')) {
+                    const endDivIndex = formattedContent.indexOf('</div>') + 6;
+                    subtitleHtml = formattedContent.substring(0, endDivIndex);
+                    formattedContent = formattedContent.substring(endDivIndex).trim();
+                }
+
+                // Convertir saltos de línea en párrafos, respetando el HTML existente (headings).
+                const contentHtml = formattedContent
+                    .split('\n\n')
+                    .filter(p => p.trim() !== '')
+                    .map(p => {
+                        const trimmedP = p.trim();
+                        if (trimmedP.startsWith('<h') && trimmedP.endsWith('>')) {
+                            return trimmedP; // Mantener HTML de headings.
+                        }
+                        return `<p>${trimmedP}</p>`; // Envolver texto plano en <p>.
+                    }).join('');
+                
+                modalContent.innerHTML = subtitleHtml + contentHtml;
+            } catch (error) {
+                console.error('Error en showModal:', error);
+                modalAuthorInfo.textContent = 'Información del autor no disponible';
+                modalContent.innerHTML = '<p>Error al cargar el contenido completo. <a href="' + news.enlace + '" target="_blank">Ver noticia original</a></p>';
+            }
+        };
+
+        const closeModal = () => {
+            document.getElementById('newsModal').style.display = 'none';
+        };
+
+        // Función para resaltar texto
+        const highlightText = (text, searchTerm) => {
+            if (!searchTerm || searchTerm.length < 2) return text;
+            const regex = new RegExp(`(${searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+            return text.replace(regex, '<span class="highlight">$1</span>');
+        };
+
+        // Función para buscar en noticias
+        const searchNews = (searchTerm) => {
+            currentSearchTerm = searchTerm;
+            displayNews(currentNewsData);
+        };
+
+        // Actualizar índice de secciones
+        const updateSectionsIndex = () => {
+            const dropdownMenu = document.getElementById('dropdownMenu');
+            const sectionsCountEl = document.getElementById('sectionsCount');
+            if (!dropdownMenu) return;
+
+            // Reiniciar el estado del filtro de sección
+            document.querySelector('.dropdown-text').textContent = 'Todas las secciones';
+            document.querySelectorAll('.dropdown-item').forEach(item => item.classList.remove('active'));
+            const allItem = dropdownMenu.querySelector('.dropdown-item[data-section="all"]');
+            if(allItem) allItem.classList.add('active');
+            currentSection = 'all';
+
+            dropdownMenu.querySelectorAll('.dropdown-item:not([data-section="all"])').forEach(item => item.remove());
+
+            const sectionCounts = {};
+            currentNewsData.forEach(news => {
+                sectionCounts[news.seccion] = (sectionCounts[news.seccion] || 0) + 1;
+            });
+
+            sectionsCountEl.textContent = allSections.size;
+            dropdownMenu.querySelector('.dropdown-item[data-section="all"] .section-count').textContent = currentNewsData.length;
+
+            const sortedSections = Array.from(allSections).sort((a, b) => 
+                formatSectionName(a).localeCompare(formatSectionName(b))
+            );
+
+            sortedSections.forEach(section => {
+                const dropdownItem = document.createElement('div');
+                dropdownItem.className = 'dropdown-item';
+                dropdownItem.setAttribute('data-section', section);
+                dropdownItem.innerHTML = `
+                    <span class="section-icon">${getSectionIcon(section)}</span>
+                    <span class="section-name">${formatSectionName(section)}</span>
+                    <span class="section-count">${sectionCounts[section] || 0}</span>
+                `;
+                
+                dropdownItem.addEventListener('click', () => {
+                    document.querySelectorAll('.dropdown-item').forEach(item => item.classList.remove('active'));
+                    dropdownItem.classList.add('active');
+                    document.querySelector('.dropdown-text').textContent = formatSectionName(section);
+                    dropdownMenu.classList.remove('show');
+                    dropdownToggle.classList.remove('active');
+                    currentSection = section;
+                    displayNews(currentNewsData);
+                });
+                
+                dropdownMenu.appendChild(dropdownItem);
+            });
+        };
+
+        // Mostrar noticias en el DOM
+        const displayNews = (newsData) => {
+            const grid = document.getElementById('newsGrid');
+            const stats = document.getElementById('stats');
+            grid.innerHTML = '';
+            
+            if (!newsData || newsData.length === 0) {
+                grid.innerHTML = '<div class="error-message"><h3>⚠️ No se encontraron noticias</h3><p>Es posible que la estructura de la página haya cambiado o no haya noticias disponibles.</p></div>';
+                stats.textContent = '';
+                return;
+            }
+
+            let filteredNews = newsData;
+            if (currentSection !== 'all') {
+                filteredNews = newsData.filter(news => news.seccion === currentSection);
+            }
+
+            if (currentSearchTerm && currentSearchTerm.length >= 2) {
+                const searchLower = currentSearchTerm.toLowerCase();
+                filteredNews = filteredNews.filter(news => 
+                    (news.titular.toLowerCase() + ' ' + news.entradilla.toLowerCase()).includes(searchLower)
+                );
+            }
+
+            filteredNews.sort((a, b) => b.fecha - a.fecha);
+
+            const sectionText = currentSection !== 'all' ? ` - Sección: ${formatSectionName(currentSection)}` : '';
+            const searchText = currentSearchTerm.length >= 2 ? ` - Búsqueda: "${currentSearchTerm}"` : '';
+            stats.textContent = `Mostrando ${filteredNews.length} de ${newsData.length} noticias de ${FUENTE.nombre}${sectionText}${searchText}`;
+
+            filteredNews.forEach(news => {
+                const newsItem = document.createElement('div');
+                newsItem.className = 'news-item';
+                newsItem.style.cursor = 'pointer';
+                newsItem.setAttribute('data-section', news.seccion);
+
+                const headlineText = news.titular || 'Sin título';
+                const descriptionText = news.entradilla !== news.titular ? news.entradilla : '';
+                
+                newsItem.innerHTML = `
+                    <div class="news-item-header">
+                        <span class="news-source">${formatSectionName(news.seccion)}</span>
+                        <span class="news-date">${formatDateWithAuthor(news.fecha, news.autor)}</span>
+                    </div>
+                    <h3 class="news-headline">${highlightText(headlineText, currentSearchTerm)}</h3>
+                    <p class="news-description">${highlightText(descriptionText, currentSearchTerm)}</p>
+                `;
+                
+                newsItem.addEventListener('click', () => {
+                    try {
+                        if (isReadMode) {
+                            showModal(news);
+                        } else {
+                            window.open(news.enlace, '_blank');
+                        }
+                    } catch (e) {
+                        console.error("Error al abrir la noticia:", e);
+                        // Como fallback, intenta abrirlo de una manera más simple
+                        window.location.href = news.enlace;
+                    }
+                });
+
+                newsItem.title = isReadMode ? 'Clic para leer noticia completa' : 'Clic para abrir en nueva pestaña';
+                grid.appendChild(newsItem);
+            });
+        };
+
+        // Cargar noticias automáticamente
+        const loadNews = async () => {
+            const grid = document.getElementById('newsGrid');
+            const stats = document.getElementById('stats');
+            const hemerotecaBtn = document.getElementById('fetchHemerotecaBtn');
+            const backBtn = document.getElementById('backToLatestBtn');
+            const mainTitle = document.getElementById('mainControlsTitle');
+            
+            try {
+                grid.innerHTML = `<p class="loading-message">Cargando noticias de ${FUENTE.nombre}...</p>`;
+                stats.textContent = `Consultando ${FUENTE.nombre}...`;
+
+                allSections.clear();
+                const newsData = await scrapeElPais();
+                currentNewsData = newsData;
+                displayNews(newsData);
+                updateSectionsIndex();
+
+                // Restaurar UI a estado inicial
+                hemerotecaBtn.style.display = 'inline-block';
+                backBtn.style.display = 'none';
+                document.getElementById('hemerotecaDate').value = new Date().toISOString().split('T')[0];
+                mainTitle.textContent = `Últimas Noticias`;
+
+            } catch (error) {
+                console.error('Error cargando noticias:', error);
+                grid.innerHTML = `<div class="error-message"><h3>⚠️ Error al cargar noticias</h3><p>${error.message}</p></div>`;
+                stats.textContent = '';
+            }
+        };
+
+        // Event listeners
+        document.addEventListener('DOMContentLoaded', () => {
+            loadNews();
+            
+            document.getElementById('readModeToggle').addEventListener('change', (e) => {
+                isReadMode = e.target.checked;
+                document.querySelectorAll('.news-item').forEach(item => {
+                    item.title = isReadMode ? 'Clic para leer noticia completa' : 'Clic para abrir en nueva pestaña';
+                });
+            });
+
+            const hemerotecaDateInput = document.getElementById('hemerotecaDate');
+            const fetchHemerotecaBtn = document.getElementById('fetchHemerotecaBtn');
+            const backToLatestBtn = document.getElementById('backToLatestBtn');
+
+            const today = new Date().toISOString().split('T')[0];
+            hemerotecaDateInput.value = today;
+            hemerotecaDateInput.max = today;
+
+
+            fetchHemerotecaBtn.addEventListener('click', () => {
+                const selectedDate = hemerotecaDateInput.value;
+                if (selectedDate) {
+                    loadHemerotecaNews(selectedDate);
+                }
+            });
+
+            backToLatestBtn.addEventListener('click', () => {
+                loadNews();
+            });
+
+            const dropdownToggle = document.getElementById('dropdownToggle');
+            const dropdownMenu = document.getElementById('dropdownMenu');
+            dropdownToggle.addEventListener('click', () => {
+                dropdownMenu.classList.toggle('show');
+                dropdownToggle.classList.toggle('active');
+            });
+
+            document.addEventListener('click', (e) => {
+                if (!dropdownToggle.contains(e.target) && !dropdownMenu.contains(e.target)) {
+                    dropdownMenu.classList.remove('show');
+                    dropdownToggle.classList.remove('active');
+                }
+            });
+
+            const searchInput = document.getElementById('searchInput');
+            const searchClear = document.getElementById('searchClear');
+            searchInput.addEventListener('input', (e) => {
+                const searchTerm = e.target.value.trim();
+                searchClear.style.display = searchTerm ? 'block' : 'none';
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => searchNews(searchTerm), 300);
+            });
+
+            searchClear.addEventListener('click', () => {
+                searchInput.value = '';
+                searchClear.style.display = 'none';
+                searchNews('');
+                searchInput.focus();
+            });
+
+            document.querySelector('.dropdown-item[data-section="all"]').addEventListener('click', () => {
+                document.querySelectorAll('.dropdown-item').forEach(item => item.classList.remove('active'));
+                document.querySelector('.dropdown-item[data-section="all"]').classList.add('active');
+                document.querySelector('.dropdown-text').textContent = 'Todas las secciones';
+                currentSection = 'all';
+                displayNews(currentNewsData);
+            });
+
+            const modal = document.getElementById('newsModal');
+            document.getElementById('closeModal').addEventListener('click', closeModal);
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) closeModal();
+            });
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && modal.style.display === 'block') closeModal();
+            });
+        });
+    </script>
+</body>
+</html> 
 
